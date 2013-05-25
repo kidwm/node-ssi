@@ -1,0 +1,17 @@
+{
+  "name": "node-ssi",
+  "version": "0.1.0",
+  "description": "Server Side Includes for NodeJS",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/67726e/node-ssi.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "readmeFilename": "README.md",
+  "gitHead": "d99f35decc10fbcd2406b2bb7ee23e80b6f23661"
+}
