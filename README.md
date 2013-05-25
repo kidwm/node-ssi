@@ -3,7 +3,7 @@ node-ssi
 
 Server Side Includes for NodeJS
 
-_Note:_ The current version of ssi does all IO synchronously. Further development plans include writing methods asynchronously and migrating current methods to conform to Node conventions for synchronous methods.
+__Note:__ The current version of ssi does all IO synchronously. Further development plans include writing methods asynchronously and migrating current methods to conform to Node conventions for synchronous methods.
 
 ### Support Instructions
 
@@ -40,7 +40,7 @@ _contents_ `String` Contents of the file to be parsed
 
 Method returns the parsed contents
 
-## compile()
+#### compile()
 
 Method parses all of the files found by the matcher in the input directory, and writes the files to the output directory with identical names and directory structure.
 
