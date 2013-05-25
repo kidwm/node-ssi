@@ -62,7 +62,7 @@ var INCLUDE_FILE = new RegExp(/<!--#include file="(.+?)" -->/g);
 			return fs.readFileSync(filename, {encoding: "utf8"});
 		},
 
-		_writeFile(filename, contents) {
+		_writeFile: function(filename, contents) {
 			var directory = path.dirname(filename);
 
 			if (!fs.existsSync(directory)) {
