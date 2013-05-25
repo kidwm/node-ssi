@@ -13,5 +13,10 @@
   "author": "",
   "license": "MIT",
   "readmeFilename": "README.md",
-  "gitHead": "d99f35decc10fbcd2406b2bb7ee23e80b6f23661"
+  "gitHead": "d99f35decc10fbcd2406b2bb7ee23e80b6f23661",
+  "dependencies": {
+    "mkdirp": "~0.3.5",
+	"glob": "~3.2.1"
+  },
+  "devDependencies": {}
 }
