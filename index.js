@@ -2,6 +2,7 @@
 var fs = require("fs");
 var path = require("path");
 var mkdirp = require("mkdirp");
+var glob = require("glob");
 
 var INCLUDE_VIRTUAL = new RegExp(/<!--#include virtual="(.+?)" -->/g);
 var INCLUDE_FILE = new RegExp(/<!--#include file="(.+?)" -->/g);
@@ -19,6 +20,19 @@ var INCLUDE_FILE = new RegExp(/<!--#include file="(.+?)" -->/g);
 	ssi.prototype = {
 		
 		/* Public Methods */
+		
+		compile: function() {
+			var files = glob.sync(this.inputDirectory + this.matcher);
+
+			for (var i = 0; i < files.length; i++) {
+				var input = files[i];
+				var contents = fs.readFileSync(input, {encoding: "utf8"});
+				contents = this.parse(input, contents);
+
+				var output = input.replace(this.inputDirectory, this.outputDirectory);
+				this._writeFile(output, contents);
+			}
+		},
 
 		parse: function(filename, contents) {
 			var instance = this;
@@ -46,6 +60,17 @@ var INCLUDE_FILE = new RegExp(/<!--#include file="(.+?)" -->/g);
 			var filename = path.resolve(path.dirname(currentFile), file);
 
 			return fs.readFileSync(filename, {encoding: "utf8"});
+		},
+
+		_writeFile(filename, contents) {
+			var directory = path.dirname(filename);
+
+			if (!fs.existsSync(directory)) {
+				// If the file's directory doesn't exists, recusively create it
+				mkdirp.sync(directory);
+			}
+
+			fs.writeFileSync(filename, contents, {encoding: "utf8"});
 		}
 	};
 
