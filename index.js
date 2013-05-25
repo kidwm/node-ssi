@@ -43,11 +43,6 @@ var INCLUDE_VIRTUAL = new RegExp(/<!--#include virtual="(.+?" -->/g);
 		}
 	};
 
-
-	var parser = new ssi();
-	
-
-
 	module.exports = ssi;
 })();
 
