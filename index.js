@@ -29,12 +29,24 @@ var INCLUDE_VIRTUAL = new RegExp(/<!--#include virtual="(.+?" -->/g);
 		/* Private Methods */
 
 		_readVirtual: function(currentFile, virtual) {
-			var directory = path.dirname(currentFile);
-			var filename = path.resolve(directory, virtual);
-			
+			var filename = "";
+
+			if (virtual[0] === "/") {
+				// Absolute path is resolved from the document root
+				filename = this.documentRoot + virtual;
+			} else {
+				// Otherwise the resolve relative to the current file's directory
+				filename = path.resolve(path.dirname(currentFile), virtual);
+			}
+
 			return fs.readFileSync(filename, {encoding: "utf8"});
 		}
 	};
+
+
+	var parser = new ssi();
+	
+
 
 	module.exports = ssi;
 })();
