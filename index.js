@@ -3,7 +3,7 @@ var fs = require("fs");
 var path = require("path");
 var mkdirp = require("mkdirp");
 
-var INCLUDE_VIRTUAL = new RegExp(/<!--#include virtual="(.+?" -->/g);
+var INCLUDE_VIRTUAL = new RegExp(/<!--#include virtual="(.+?)" -->/g);
 var INCLUDE_FILE = new RegExp(/<!--#include file="(.+?)" -->/g);
 
 (function() {
@@ -11,6 +11,7 @@ var INCLUDE_FILE = new RegExp(/<!--#include file="(.+?)" -->/g);
 
 	var ssi = function(inputDirectory, outputDirectory, matcher) {
 		this.inputDirectory = inputDirectory;
+		this.documentRoot = inputDirectory;
 		this.outputDirectory = outputDirectory;
 		this.matcher = matcher;
 	};
@@ -42,7 +43,7 @@ var INCLUDE_FILE = new RegExp(/<!--#include file="(.+?)" -->/g);
 		},
 
 		_readFile: function(currentFile, file) {
-			var filename = path.resolve(path.dirname(currentfile), file);
+			var filename = path.resolve(path.dirname(currentFile), file);
 
 			return fs.readFileSync(filename, {encoding: "utf8"});
 		}
