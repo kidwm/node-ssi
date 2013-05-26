@@ -10,6 +10,7 @@ __Note:__ The current version of ssi does all IO synchronously. Further developm
 ```html
 <!--#include virtual="" -->
 <!--#include file="" -->
+<!--#set var="" value="" -->
 ```
 
 ### Installation

@@ -6,6 +6,7 @@ var glob = require("glob");
 
 var INCLUDE_VIRTUAL = new RegExp(/<!--#include virtual="(.+?)" -->/g);
 var INCLUDE_FILE = new RegExp(/<!--#include file="(.+?)" -->/g);
+var SET = new RegExp(/<!--#set var="(.+)?" value="(.+)?" -->/g);
 
 (function() {
 	"use strict";
@@ -36,6 +37,12 @@ var INCLUDE_FILE = new RegExp(/<!--#include file="(.+?)" -->/g);
 
 		parse: function(filename, contents) {
 			var instance = this;
+			var variables = {};
+
+			contents = contents.replace(SET, function(match, key, value) {
+				variables[key] = value;
+				return "";
+			});
 
 			contents = contents.replace(INCLUDE_VIRTUAL, function(match, virtual) {
 				return instance._readVirtual(virtual);
