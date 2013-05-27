@@ -7,7 +7,7 @@ Server Side Includes for NodeJS
 
 __Note:__ The current version of ssi does all IO synchronously. Further development plans include writing methods asynchronously and migrating current methods to conform to Node conventions for synchronous methods.
 
-### Support Instructions
+### Supported Instructions
 
 ```html
 <!--#include virtual="" -->
