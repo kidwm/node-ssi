@@ -1,7 +1,7 @@
 node-ssi
 ========
 
-[![Build Status](https://travis-ci.org/67726e/node-ssi.png)](https://travis-ci.org/67726e/node-ssi])
+[![Build Status](https://travis-ci.org/67726e/node-ssi.png)](https://travis-ci.org/67726e/node-ssi)
 
 Server Side Includes for NodeJS
 
