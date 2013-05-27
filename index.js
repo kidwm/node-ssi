@@ -4,10 +4,6 @@ var path = require("path");
 var mkdirp = require("mkdirp");
 var glob = require("glob");
 
-var INCLUDE_VIRTUAL = /<!--#include virtual="(.+?)" -->/g;
-var INCLUDE_FILE = /<!--#include file="(.+?)" -->/g;
-var SET = /<!--#set var="(.+?)" value="(.+?)" -->/g;
-
 var DIRECTIVE_MATCHER = /<!--#([a-z]+)[^\-\->]* -->/g;
 var ATTRIBUTE_MATCHER = /([a-z]+)="(.+?)"/g;
 
