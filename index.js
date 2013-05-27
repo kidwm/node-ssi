@@ -4,18 +4,54 @@ var path = require("path");
 var mkdirp = require("mkdirp");
 var glob = require("glob");
 
-var INCLUDE_VIRTUAL = new RegExp(/<!--#include virtual="(.+?)" -->/g);
-var INCLUDE_FILE = new RegExp(/<!--#include file="(.+?)" -->/g);
-var SET = new RegExp(/<!--#set var="(.+?)" value="(.+?)" -->/g);
+var INCLUDE_VIRTUAL = /<!--#include virtual="(.+?)" -->/g;
+var INCLUDE_FILE = /<!--#include file="(.+?)" -->/g;
+var SET = /<!--#set var="(.+?)" value="(.+?)" -->/g;
 
 (function() {
 	"use strict";
+
+	var IOUtils = function(documentRoot) {
+		this.documentRoot = documentRoot;
+	};
+
+	IOUtils.prototype = {
+
+		/* Public Methods */
+
+		readFileSync: function(currentFile, includeFile) {
+			var filename = path.resolve(path.dirname(currentFile), includeFile);
+
+			return fs.readFileSync(filename, {encoding: "utf8"});
+		},
+
+		readVirtualSync: function(includeFile) {
+			var filename = path.resolve(this.documentRoot, includeFile);
+
+			return fs.readFileSync(filename, {encoding: "utf8"});
+		},
+
+		writeFileSync: function(filename, contents) {
+			var directory = path.dirname(filename);
+
+			if (!fs.existsSync(directory)) {
+				// If the file's directory doesn't exists, recursively create it
+				mkdirp.sync(directory);
+			}
+
+			fs.writeFileSync(filename, contents, {encoding: "utf8"});
+		}
+
+		/* Private Methods */
+	};
 
 	var ssi = function(inputDirectory, outputDirectory, matcher) {
 		this.inputDirectory = inputDirectory;
 		this.documentRoot = inputDirectory;
 		this.outputDirectory = outputDirectory;
 		this.matcher = matcher;
+
+		this.ioUtils = new IOUtils(this.documentRoot);
 	};
 	
 	ssi.prototype = {
@@ -31,7 +67,7 @@ var SET = new RegExp(/<!--#set var="(.+?)" value="(.+?)" -->/g);
 				var data = this.parse(input, contents);
 
 				var output = input.replace(this.inputDirectory, this.outputDirectory);
-				this._writeFile(output, data.contents);
+				this.ioUtils.writeFileSync(output, data.contents);
 			}
 		},
 
@@ -45,40 +81,18 @@ var SET = new RegExp(/<!--#set var="(.+?)" value="(.+?)" -->/g);
 			});
 
 			contents = contents.replace(INCLUDE_VIRTUAL, function(match, virtual) {
-				return instance._readVirtual(virtual);
+				return instance.ioUtils.readVirtualSync(virtual);
 			});
 
 			contents = contents.replace(INCLUDE_FILE, function(match, file) {
-				return instance._readFile(filename, file);
+				return instance.ioUtils.readFileSync(filename, file);
 			});
 
 			return {contents: contents, variables: variables};
-		},
+		}
 
 		/* Private Methods */
 
-		_readVirtual: function(virtual) {
-			var filename = path.resolve(this.documentRoot, virtual);
-
-			return fs.readFileSync(filename, {encoding: "utf8"});
-		},
-
-		_readFile: function(currentFile, file) {
-			var filename = path.resolve(path.dirname(currentFile), file);
-
-			return fs.readFileSync(filename, {encoding: "utf8"});
-		},
-
-		_writeFile: function(filename, contents) {
-			var directory = path.dirname(filename);
-
-			if (!fs.existsSync(directory)) {
-				// If the file's directory doesn't exists, recusively create it
-				mkdirp.sync(directory);
-			}
-
-			fs.writeFileSync(filename, contents, {encoding: "utf8"});
-		}
 	};
 
 	module.exports = ssi;
