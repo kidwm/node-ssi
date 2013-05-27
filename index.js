@@ -28,10 +28,10 @@ var SET = new RegExp(/<!--#set var="(.+)?" value="(.+)?" -->/g);
 			for (var i = 0; i < files.length; i++) {
 				var input = files[i];
 				var contents = fs.readFileSync(input, {encoding: "utf8"});
-				contents = this.parse(input, contents);
+				var data = this.parse(input, contents);
 
 				var output = input.replace(this.inputDirectory, this.outputDirectory);
-				this._writeFile(output, contents);
+				this._writeFile(output, data.contents);
 			}
 		},
 
@@ -52,7 +52,7 @@ var SET = new RegExp(/<!--#set var="(.+)?" value="(.+)?" -->/g);
 				return instance._readFile(filename, file);
 			});
 
-			return contents;
+			return {contents: contents, variables: variables};
 		},
 
 		/* Private Methods */
