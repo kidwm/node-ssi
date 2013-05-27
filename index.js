@@ -6,7 +6,7 @@ var glob = require("glob");
 
 var INCLUDE_VIRTUAL = new RegExp(/<!--#include virtual="(.+?)" -->/g);
 var INCLUDE_FILE = new RegExp(/<!--#include file="(.+?)" -->/g);
-var SET = new RegExp(/<!--#set var="(.+)?" value="(.+)?" -->/g);
+var SET = new RegExp(/<!--#set var="(.+?)" value="(.+?)" -->/g);
 
 (function() {
 	"use strict";
