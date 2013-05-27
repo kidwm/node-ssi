@@ -8,6 +8,9 @@ var INCLUDE_VIRTUAL = /<!--#include virtual="(.+?)" -->/g;
 var INCLUDE_FILE = /<!--#include file="(.+?)" -->/g;
 var SET = /<!--#set var="(.+?)" value="(.+?)" -->/g;
 
+var DIRECTIVE_MATCHER = /<!--#([a-z]+)[^\-\->]* -->/g;
+var ATTRIBUTE_MATCHER = /([a-z]+)="(.+?)"/g;
+
 (function() {
 	"use strict";
 
@@ -45,6 +48,67 @@ var SET = /<!--#set var="(.+?)" value="(.+?)" -->/g;
 		/* Private Methods */
 	};
 
+	var DirectiveHandler = function(ioUtils) {
+		this.ioUtils = ioUtils;
+	};
+
+	DirectiveHandler.prototype = {
+
+		/* Public Methods */
+
+		handleDirective: function(directive, directiveName, currentFile) {
+			var attributes = this._parseAttributes(directive);
+
+			switch (directiveName) {
+				case "set":
+					return this._handleSet(attributes);
+				case "include":
+					return this._handleInclude(attributes, currentFile);
+			}
+
+			return {warning: "Could not find parse directive #" + directiveName};
+		},
+
+		/* Private Methods */
+
+		_parseAttributes: function(directive) {
+			var attributes = [];
+
+			directive.replace(ATTRIBUTE_MATCHER, function(attribute, name, value) {
+				attributes.push({name: name, value: value});
+			});
+
+			return attributes;
+		},
+
+		_handleSet: function(attributes) {
+			if (attributes.length === 2 && attributes[0].name === "var" &&
+				attributes[1].name === "value") {
+				return {variables: [{
+					name: attributes[0].value,
+					value: attributes[1].value
+				}]};
+			}
+
+			return {error: "Directive #set did not contain a 'var' and 'value' attribute"};
+		},
+
+		_handleInclude: function(attributes, currentFile) {
+			if (attributes.length === 1) {
+				var attribute = attributes[0];
+
+				if (attribute.name === "file") {
+					return {output: this.ioUtils.readFileSync(currentFile, attribute.value)};
+				} else if (attribute.name === "virtual") {
+					return {output: this.ioUtils.readVirtualSync(attribute.value)};
+				}
+			}
+
+			return {error: "Directive #include did not contain a 'file' or 'virtual' attribute"};
+		}
+	};
+
+
 	var ssi = function(inputDirectory, outputDirectory, matcher) {
 		this.inputDirectory = inputDirectory;
 		this.documentRoot = inputDirectory;
@@ -52,6 +116,7 @@ var SET = /<!--#set var="(.+?)" value="(.+?)" -->/g;
 		this.matcher = matcher;
 
 		this.ioUtils = new IOUtils(this.documentRoot);
+		this.directiveHandler = new DirectiveHandler(this.ioUtils);
 	};
 	
 	ssi.prototype = {
@@ -75,17 +140,16 @@ var SET = /<!--#set var="(.+?)" value="(.+?)" -->/g;
 			var instance = this;
 			var variables = {};
 
-			contents = contents.replace(SET, function(match, key, value) {
-				variables[key] = value;
-				return "";
-			});
+			contents = contents.replace(DIRECTIVE_MATCHER, function(directive, directiveName) {
+				var data = instance.directiveHandler.handleDirective(directive, directiveName, filename);
 
-			contents = contents.replace(INCLUDE_VIRTUAL, function(match, virtual) {
-				return instance.ioUtils.readVirtualSync(virtual);
-			});
+				for (var key in data.variables) {
+					if (data.variables.hasOwnProperty(key)) {
+						variables[data.variables[key].name] = data.variables[key].value;
+					}
+				}
 
-			contents = contents.replace(INCLUDE_FILE, function(match, file) {
-				return instance.ioUtils.readFileSync(filename, file);
+				return (data && data.output) || "";
 			});
 
 			return {contents: contents, variables: variables};
