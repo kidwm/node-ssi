@@ -37,7 +37,7 @@ includes.compile();
 ### Methods
 
 #### parse(filename, contents)
-_filename_ `String` Absolute name of the file
+_filename_ `String` path to the file
 
 _contents_ `String` Contents of the file to be parsed
 
