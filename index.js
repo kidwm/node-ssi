@@ -6,6 +6,7 @@ var glob = require("glob");
 
 var DIRECTIVE_MATCHER = /<!--#([a-z]+)[^\-\->]* -->/g;
 var ATTRIBUTE_MATCHER = /([a-z]+)="(.+?)"/g;
+var EXPRESSION_MATCHER = /\$\{(.+?)\}/g;
 
 (function() {
 	"use strict";
@@ -75,6 +76,41 @@ var ATTRIBUTE_MATCHER = /([a-z]+)="(.+?)"/g;
 			});
 
 			return attributes;
+		},
+
+		_parseExpression: function(expression, variables) {
+			var instance = this;
+
+			expression = expression.replace(EXPRESSION_MATCHER, function(variable, variableName) {
+				// Either return the variable value or the original expression if it doesn't exist
+				if (variables[variableName] !== undefined) {
+					// Escape all double quotes and wrap the value in double quotes
+					return instance._wrap(variables[variableName]);
+				}
+
+				return variable;
+			});
+
+			if (expression.match(EXPRESSION_MATCHER)) {
+				return {error: "Could not resolve all variables"}
+			}
+
+			// Return a boolean for the truthiness of the expression
+			return {truthy: !!eval(expression)};
+		},
+
+		_wrap: function(value) {
+			if (this._shouldWrap(value)) {
+				return "\"" + value.toString().replace(/"/g, "\\\"") + "\"";
+			}
+
+			return value;
+		},
+
+		_shouldWrap: function(value) {
+			var type = typeof value;
+
+			return (type !== "boolean" && type !== "number");
 		},
 
 		_handleSet: function(attributes) {
