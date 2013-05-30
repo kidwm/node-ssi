@@ -4,12 +4,28 @@ var path = require("path");
 var mkdirp = require("mkdirp");
 var glob = require("glob");
 
-var DIRECTIVE_MATCHER = /<!--#([a-z]+)[^\-\->]* -->/g;
+var DIRECTIVE_MATCHER = /<!--#([a-z]+)([ ]+([a-z]+)="(.+?)")* -->/g;
 var ATTRIBUTE_MATCHER = /([a-z]+)="(.+?)"/g;
 var EXPRESSION_MATCHER = /\$\{(.+?)\}/g;
 
 (function() {
 	"use strict";
+
+	var mergeSimpleObject = function() {
+		var output = {};
+
+		for (var i = 0; i < arguments.length; i++) {
+			var argument = arguments[i];
+
+			for (var key in argument) {
+				if (argument.hasOwnProperty(key)) {
+					output[key] = argument[key];
+				}
+			}
+		}
+
+		return output;
+	};
 
 	var IOUtils = function(documentRoot) {
 		this.documentRoot = documentRoot;
@@ -45,25 +61,61 @@ var EXPRESSION_MATCHER = /\$\{(.+?)\}/g;
 		/* Private Methods */
 	};
 
+	var Conditional = function(expression) {
+		this.expression = expression;
+		this.directives = [];
+	};
+
+	Conditional.prototype = {
+		getExpression: function() {
+			return this.expression;
+		},
+
+		getDirectives: function() {
+			return this.directives;
+		},
+
+		addDirective: function(directive) {
+			this.directives.push(directive);
+		}
+	};
+
 	var DirectiveHandler = function(ioUtils) {
 		this.ioUtils = ioUtils;
+		this.conditionals = [];
+		this.currentConditional = undefined;
 	};
 
 	DirectiveHandler.prototype = {
 
 		/* Public Methods */
 
-		handleDirective: function(directive, directiveName, currentFile) {
+		handleDirective: function(directive, directiveName, currentFile, variables) {
+			if (this._inConditional()) {
+				if (!this._isConditional(directiveName)) {
+					this.currentConditional.addDirective(directive);
+					return {output: ""};
+				}
+			}
+
 			var attributes = this._parseAttributes(directive);
 
 			switch (directiveName) {
+				case "if":
+					return this._handleIf(attributes);
+				case "elif":
+					return this._handleElseIf(attributes);
+				case "else":
+					return this._handleElse();
+				case "endif":
+					return this._handleEndIf(currentFile, variables);
 				case "set":
 					return this._handleSet(attributes);
 				case "include":
 					return this._handleInclude(attributes, currentFile);
 			}
 
-			return {warning: "Could not find parse directive #" + directiveName};
+			return {error: "Could not find parse directive #" + directiveName};
 		},
 
 		/* Private Methods */
@@ -137,6 +189,86 @@ var EXPRESSION_MATCHER = /\$\{(.+?)\}/g;
 			}
 
 			return {error: "Directive #include did not contain a 'file' or 'virtual' attribute"};
+		},
+
+		_handleIf: function(attributes) {
+			if (attributes.length === 1 && attributes[0].name === "expr") {
+				// Create a new conditional, put it on the stack and assign as current conditional
+				var conditional = new Conditional(attributes[0].value);
+				this.conditionals.push(conditional);
+				this.currentConditional = conditional;
+
+				return {output: ""};
+			}
+
+			return {error: "If does not have a single 'expr' attribute"};
+		},
+
+		_handleElseIf: function(attributes) {
+			if (attributes.length === 1 && attributes[0].name === "expr") {
+				if (!this._inConditional()) {
+					return {error: "Elif while not inside of If block"};
+				}
+
+				var conditional = new Conditional(attributes[0].value);
+				this.conditionals.push(conditional);
+				this.currentConditional = conditional;
+
+				return {output: ""};
+			}
+
+			return {error: "Elif does not have a single 'expr' attribute"};
+		},
+
+		_handleElse: function() {
+			if (!this._inConditional()) {
+				return {error: "Else while not inside of If block"};
+			}
+
+			// As a hack, just provide an always true expression
+			var conditional = new Conditional("true");
+			this.conditionals.push(conditional);
+			this.currentConditional = conditional;
+
+			return {output: ""};
+		},
+
+		_handleEndIf: function(currentFile, pageVariables) {
+			for (var i = 0; i < this.conditionals.length; i++) {
+				var conditional = this.conditionals[i];
+				var variables = {};
+
+				// Find the first conditional that is true
+				if (this._parseExpression(conditional.getExpression(), variables)) {
+					var directiveHandler = new DirectiveHandler(this.ioUtils);
+					var output = {output: "", variables: {}};
+
+					// Iterate over the directives contained by the conditional, and parse them
+					for (var j = 0; j < conditional.getDirectives().length; j++) {
+						var directive = conditional.getDirectives()[j];
+						// We can assume this matches the directive format
+						var directiveName = DIRECTIVE_MATCHER.exec(directive)[1];
+
+						var results = directiveHandler.handleDirective(directive, directiveName, currentFile,
+							mergeSimpleObject(variables, pageVariables));
+
+						output.output += results.output || "";
+						output.variables = mergeSimpleObject(output.variables, results.variables || {});
+					}
+
+					return output;
+				}
+			}
+
+			return {output: ""};
+		},
+
+		_isConditional: function(directive) {
+			return (directive === "if" || directive === "elif" || directive === "else" || directive === "endif");
+		},
+
+		_inConditional: function() {
+			return this.conditionals.length > 0;
 		}
 	};
 
@@ -173,7 +305,9 @@ var EXPRESSION_MATCHER = /\$\{(.+?)\}/g;
 			var variables = {};
 
 			contents = contents.replace(DIRECTIVE_MATCHER, function(directive, directiveName) {
-				var data = instance.directiveHandler.handleDirective(directive, directiveName, filename);
+				var data = instance.directiveHandler.handleDirective(directive, directiveName, filename, variables);
+
+				if (data.error) throw data.error;
 
 				for (var key in data.variables) {
 					if (data.variables.hasOwnProperty(key)) {
