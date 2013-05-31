@@ -11,6 +11,16 @@ describe("testing conditional expressions", function() {
 		"empty": ""
 	};
 
+	it("true should be true", function() {
+		var results = parser._parseExpression("true", variables);
+		assert(results.truthy === true);
+	});
+
+	it("false should be false", function() {
+		var results = parser._parseExpression("false", variables);
+		assert(results.truthy === false);
+	});
+
 	it("${true} should be true", function() {
 		var results = parser._parseExpression("${true}", variables);
 		assert(results.truthy === true);

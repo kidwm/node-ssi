@@ -234,12 +234,16 @@ var EXPRESSION_MATCHER = /\$\{(.+?)\}/g;
 		},
 
 		_handleEndIf: function(currentFile, pageVariables) {
+			if (!this._inConditional()) {
+				return {error: "Endif while not inside of If block"};
+			}
+
 			for (var i = 0; i < this.conditionals.length; i++) {
 				var conditional = this.conditionals[i];
 				var variables = {};
 
 				// Find the first conditional that is true
-				if (this._parseExpression(conditional.getExpression(), variables)) {
+				if (this._parseExpression(conditional.getExpression(), variables).truthy) {
 					var directiveHandler = new DirectiveHandler(this.ioUtils);
 					var output = {output: "", variables: {}};
 
@@ -256,10 +260,14 @@ var EXPRESSION_MATCHER = /\$\{(.+?)\}/g;
 						output.variables = mergeSimpleObject(output.variables, results.variables || {});
 					}
 
+					this.conditionals = [];
+					this.currentConditional = undefined;
 					return output;
 				}
 			}
 
+			this.conditionals = [];
+			this.currentConditional = undefined;
 			return {output: ""};
 		},
 
