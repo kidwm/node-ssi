@@ -1,6 +1,6 @@
 {
   "name": "ssi",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Server Side Includes for NodeJS",
   "author": "Glenn Nelson <glenn@hexcoder.us> (glenn@hexcoder.us)",
   "main": "index.js",
