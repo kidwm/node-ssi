@@ -7,6 +7,7 @@ var glob = require("glob");
 var DIRECTIVE_MATCHER = /<!--#([a-z]+)([ ]+([a-z]+)="(.+?)")* -->/g;
 var ATTRIBUTE_MATCHER = /([a-z]+)="(.+?)"/g;
 var EXPRESSION_MATCHER = /\$\{(.+?)\}/g;
+var INTERPOLATION_MATCHER = /\$\{(.+?)\}/g;
 
 (function() {
 	"use strict";
@@ -120,6 +121,24 @@ var EXPRESSION_MATCHER = /\$\{(.+?)\}/g;
 
 		/* Private Methods */
 
+		_interpolate: function(string, variables, shouldWrap) {
+			var instance = this;
+
+			return string.replace(INTERPOLATION_MATCHER, function(variable, variableName) {
+				// Either return the variable value or the original expression if it doesn't exist
+				if (variables[variableName] !== undefined) {
+					if (shouldWrap) {
+						// Escape all double quotes and wrap the value in double quotes
+						return instance._wrap(variables[variableName]);
+					}
+
+					return variables[variableName];
+				}
+
+				return variable;
+			});
+		},
+
 		_parseAttributes: function(directive) {
 			var attributes = [];
 
@@ -131,19 +150,9 @@ var EXPRESSION_MATCHER = /\$\{(.+?)\}/g;
 		},
 
 		_parseExpression: function(expression, variables) {
-			var instance = this;
+			expression = this._interpolate(expression, variables, true);
 
-			expression = expression.replace(EXPRESSION_MATCHER, function(variable, variableName) {
-				// Either return the variable value or the original expression if it doesn't exist
-				if (variables[variableName] !== undefined) {
-					// Escape all double quotes and wrap the value in double quotes
-					return instance._wrap(variables[variableName]);
-				}
-
-				return variable;
-			});
-
-			if (expression.match(EXPRESSION_MATCHER)) {
+			if (expression.match(INTERPOLATION_MATCHER)) {
 				return {error: "Could not resolve all variables"}
 			}
 
