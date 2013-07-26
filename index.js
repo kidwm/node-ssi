@@ -101,6 +101,14 @@ var INTERPOLATION_MATCHER = /\$\{(.+?)\}/g;
 
 			var attributes = this._parseAttributes(directive);
 
+			function interpolate() {
+				for (var i = 0; i < attributes.length; i++) {
+					var attribute = attributes[i];
+					attribute.name = this._interpolate(attribute.name, variables, false);
+					attribute.value = this._interpolate(attribute.value, variables, false);
+				}
+			}
+
 			switch (directiveName) {
 				case "if":
 					return this._handleIf(attributes);
@@ -111,8 +119,10 @@ var INTERPOLATION_MATCHER = /\$\{(.+?)\}/g;
 				case "endif":
 					return this._handleEndIf(currentFile, variables);
 				case "set":
+					interpolate.apply(this);
 					return this._handleSet(attributes);
 				case "include":
+					interpolate.apply(this);
 					return this._handleInclude(attributes, currentFile);
 			}
 
