@@ -6,7 +6,6 @@ var glob = require("glob");
 
 var DIRECTIVE_MATCHER = /<!--#([a-z]+)([ ]+([a-z]+)="(.+?)")* -->/g;
 var ATTRIBUTE_MATCHER = /([a-z]+)="(.+?)"/g;
-var EXPRESSION_MATCHER = /\$\{(.+?)\}/g;
 var INTERPOLATION_MATCHER = /\$\{(.+?)\}/g;
 
 (function() {
