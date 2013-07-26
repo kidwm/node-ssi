@@ -41,4 +41,13 @@ describe("string interpolation", function() {
 
 		assert.equal("${TROLL}", results.variables["result"]);
 	});
+
+	it("should contain $PATH: " + process.env["PATH"], function() {
+		var html = buildVarString("result", "${PATH}");
+
+		var parser = new ssi("", "", "");
+		var results = parser.parse("", html);
+
+		assert.equal(process.env["PATH"], results.variables["result"]);
+	});
 });

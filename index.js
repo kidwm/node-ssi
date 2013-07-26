@@ -134,14 +134,22 @@ var INTERPOLATION_MATCHER = /\$\{(.+?)\}/g;
 			var instance = this;
 
 			return string.replace(INTERPOLATION_MATCHER, function(variable, variableName) {
+				var value;
+
 				// Either return the variable value or the original expression if it doesn't exist
 				if (variables[variableName] !== undefined) {
+					value = variables[variableName];
+				} else if (process.env[variableName] !== undefined) {
+					value = process.env[variableName];
+				}
+
+				if (value !== undefined) {
 					if (shouldWrap) {
 						// Escape all double quotes and wrap the value in double quotes
 						return instance._wrap(variables[variableName]);
 					}
 
-					return variables[variableName];
+					return value;
 				}
 
 				return variable;
