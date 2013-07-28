@@ -22,22 +22,22 @@ describe("testing conditional expressions", function() {
 	});
 
 	it("${true} should be true", function() {
-		var results = parser._parseExpression("${true}", variables);
+		var results = parser._parseExpression(parser._interpolate("${true}", variables, true));
 		assert(results.truthy === true);
 	});
 
 	it("${false} should be false", function() {
-		var results = parser._parseExpression("${false}", variables);
+		var results = parser._parseExpression(parser._interpolate("${false}", variables, true));
 		assert(results.truthy === false);
 	});
 
 	it("${test} should be true", function() {
-		var results = parser._parseExpression("${test}", variables);
+		var results = parser._parseExpression(parser._interpolate("${test}", variables, true));
 		assert(results.truthy === true);
 	});
 
 	it("${empty} should be false", function() {
-		var results = parser._parseExpression("${empty}", variables);
+		var results = parser._parseExpression(parser._interpolate("${empty}", variables, true));
 		assert(results.truthy === false);
 	});
 

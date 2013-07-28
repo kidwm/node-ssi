@@ -110,12 +110,16 @@ var INTERPOLATION_MATCHER = /\$\{(.+?)\}/g;
 
 			switch (directiveName) {
 				case "if":
+					interpolate.apply(this);
 					return this._handleIf(attributes);
 				case "elif":
+					interpolate.apply(this);
 					return this._handleElseIf(attributes);
 				case "else":
+					interpolate.apply(this);
 					return this._handleElse();
 				case "endif":
+					interpolate.apply(this);
 					return this._handleEndIf(currentFile, variables);
 				case "set":
 					interpolate.apply(this);
@@ -166,9 +170,7 @@ var INTERPOLATION_MATCHER = /\$\{(.+?)\}/g;
 			return attributes;
 		},
 
-		_parseExpression: function(expression, variables) {
-			expression = this._interpolate(expression, variables, true);
-
+		_parseExpression: function(expression) {
 			if (expression.match(INTERPOLATION_MATCHER)) {
 				return {error: "Could not resolve all variables"}
 			}
@@ -269,7 +271,7 @@ var INTERPOLATION_MATCHER = /\$\{(.+?)\}/g;
 				var variables = {};
 
 				// Find the first conditional that is true
-				if (this._parseExpression(conditional.getExpression(), variables).truthy) {
+				if (this._parseExpression(conditional.getExpression()).truthy) {
 					var directiveHandler = new DirectiveHandler(this.ioUtils);
 					var output = {output: "", variables: {}};
 
