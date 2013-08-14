@@ -41,8 +41,8 @@ var INTERPOLATION_MATCHER = /\$\{(.+?)\}/g;
 			return fs.readFileSync(filename, {encoding: "utf8"});
 		},
 
-		readVirtualSync: function(includeFile) {
-			var filename = path.resolve(this.documentRoot, includeFile);
+		readVirtualSync: function(currentFile, includeFile) {
+			var filename = path.resolve(path.dirname(currentFile), includeFile);
 
 			return fs.readFileSync(filename, {encoding: "utf8"});
 		},
@@ -212,7 +212,7 @@ var INTERPOLATION_MATCHER = /\$\{(.+?)\}/g;
 				if (attribute.name === "file") {
 					return {output: this.ioUtils.readFileSync(currentFile, attribute.value)};
 				} else if (attribute.name === "virtual") {
-					return {output: this.ioUtils.readVirtualSync(attribute.value)};
+					return {output: this.ioUtils.readVirtualSync(currentFile, attribute.value)};
 				}
 			}
 
