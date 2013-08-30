@@ -10,6 +10,108 @@ var INTERPOLATION_MATCHER = /\$\{(.+?)\}/g;
 
 (function() {
 	"use strict";
+    
+    var buildFilesObject = function( files ) {
+        
+        var file
+            , absPath
+            , matches
+            , curFile
+            , curMatch
+            , fileContents
+            , absPathImport
+            , origPathImport
+            , data = {}
+            , graph = {}
+            ;
+        
+        files.forEach( function( file ) {
+
+            absPath = path.resolve( file );
+            fileContents = fs.readFileSync( absPath, { encoding: 'utf8' } );
+
+            if ( !fileContents ) error( 'File does not exist: "' + absPath + '"' );
+            
+            graph[ absPath ] = [];
+            curFile = data[ absPath ] = {};
+            matches = fileContents.match( DIRECTIVE_MATCHER );
+            
+            if ( matches ) {
+                
+                curFile.includes = {};
+            
+                matches.forEach( function( theMatch ) {
+                
+                    curMatch = theMatch.match( /<!--#include virtual="(.+?)" -->/ );
+                    
+                    if ( curMatch ) {
+                        
+                        origPathImport = curMatch[1];
+                        absPathImport = path.resolve( path.dirname( absPath ), origPathImport ).replace( /\\/g, '/' );
+                    
+                        graph[ absPath ].push( absPathImport );
+                        curFile.includes[ absPathImport ] = {
+                            path: curMatch[1]
+                        }
+                    }
+                
+                }, this );
+            }
+            
+            // console.log( '  [parsed] ' + absPath );
+            
+        }, this );
+        
+        return {
+            data: data,
+            graph: graph
+        }
+        
+        return files;
+    }
+    
+    var sortByDependency = function( files ) {
+        
+        var sorted = [] 
+            , count = 0
+            , self = this
+            , visited = {}
+            , filesObj = buildFilesObject( files )
+            , data = filesObj.data
+            , graph = filesObj.graph
+            ;
+
+        var visit = function( name, ancestors ) {
+            
+            var parentFile = data[ name ]
+                , includes = parentFile.includes
+                ;
+            
+            if ( visited[ name ] ) return;
+
+            if ( !Array.isArray( ancestors ) ) ancestors = [];
+
+            ancestors.push( name );
+            visited[ name ] = true;
+            
+            graph[ name ].forEach( function( dep ) {
+                
+                // If already in ancestors, a closed chain exists.
+                if ( ancestors.indexOf( dep ) >= 0 ) {
+                    error( 'Circular dependency found: "' +  dep + '" is required by "' + name + '"( ' + ancestors.join( ' -> ' ) + ' )' );
+                }
+
+                visit( dep, ancestors.slice( 0 ) );
+            });
+            
+            sorted.push( name );
+            // console.log( '  [' + ++count + '] ' + name );
+        }
+
+        Object.keys( graph ).forEach( visit );
+
+        return sorted;
+    }
 
 	var mergeSimpleObject = function() {
 		var output = {};
@@ -325,6 +427,9 @@ var INTERPOLATION_MATCHER = /\$\{(.+?)\}/g;
 		
 		compile: function() {
 			var files = glob.sync(this.inputDirectory + this.matcher);
+            
+            files = sortByDependency( files );
+            // console.log( files );
 
 			for (var i = 0; i < files.length; i++) {
 				var input = files[i];
@@ -363,4 +468,3 @@ var INTERPOLATION_MATCHER = /\$\{(.+?)\}/g;
 
 	module.exports = ssi;
 })();
-
