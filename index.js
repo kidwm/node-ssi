@@ -429,6 +429,7 @@ var INTERPOLATION_MATCHER = /\$\{(.+?)\}/g;
 			var files = glob.sync(this.inputDirectory + this.matcher);
             
             files = sortByDependency( files );
+            this.sorted = files;
             // console.log( files );
 
 			for (var i = 0; i < files.length; i++) {
