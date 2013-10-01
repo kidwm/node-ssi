@@ -1,9 +1,9 @@
 
 var assert = require("assert");
-var ssi = require("../index.js");
+var SSI = require("../lib/SSI.js");
 
 describe("testing conditional expressions", function() {
-	var parser = new ssi("", "", "").directiveHandler;
+	var parser = new SSI("", "", "").directiveHandler;
 	var variables = {
 		"true": true,
 		"false": false,
