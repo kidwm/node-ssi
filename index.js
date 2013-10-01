@@ -4,6 +4,8 @@ var path = require("path");
 var mkdirp = require("mkdirp");
 var glob = require("glob");
 
+var IOUtils = require("./lib/IOUtils");
+
 var DIRECTIVE_MATCHER = /<!--#([a-z]+)([ ]+([a-z]+)="(.+?)")* -->/g;
 var ATTRIBUTE_MATCHER = /([a-z]+)="(.+?)"/g;
 var INTERPOLATION_MATCHER = /\$\{(.+?)\}/g;
@@ -25,40 +27,6 @@ var INTERPOLATION_MATCHER = /\$\{(.+?)\}/g;
 		}
 
 		return output;
-	};
-
-	var IOUtils = function(documentRoot) {
-		this.documentRoot = documentRoot;
-	};
-
-	IOUtils.prototype = {
-
-		/* Public Methods */
-
-		readFileSync: function(currentFile, includeFile) {
-			var filename = path.resolve(path.dirname(currentFile), includeFile);
-
-			return fs.readFileSync(filename, {encoding: "utf8"});
-		},
-
-		readVirtualSync: function(includeFile) {
-			var filename = path.resolve(this.documentRoot, includeFile);
-
-			return fs.readFileSync(filename, {encoding: "utf8"});
-		},
-
-		writeFileSync: function(filename, contents) {
-			var directory = path.dirname(filename);
-
-			if (!fs.existsSync(directory)) {
-				// If the file's directory doesn't exists, recursively create it
-				mkdirp.sync(directory);
-			}
-
-			fs.writeFileSync(filename, contents, {encoding: "utf8"});
-		}
-
-		/* Private Methods */
 	};
 
 	var Conditional = function(expression) {
