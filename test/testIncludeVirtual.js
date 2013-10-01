@@ -1,25 +1,26 @@
 
+var fs = require("fs");
 var assert = require("assert");
-var ssi = require("../index.js");
 
-function buildIncludeVirtual(virtual) {
-	return "<!--#include virtual=\"" + virtual + "\" -->";
-}
+var ssi = require("../index.js");
 
 describe("#include virtual", function() {
 	var parser = new ssi("test/html", "", "");
 
 	it("virtual-same should contain \"ROOT\"", function() {
-		var results = parser.parse("test/html/level1/level2/virtual-same.shtml", buildIncludeVirtual("root.html"));
+		var filename = "test/html/level1/level2/virtual-same.shtml";
+		var contents = fs.readFileSync(filename, {encoding: "utf8"});
+		var results = parser.parse(filename, contents);
 	
-		assert.equal("ROOT\n", results.contents);
+		assert.equal("ROOT\n\n", results.contents);
 	});
 
 	it("virtual-relative should contain \"LEVEL1\"", function() {
-		var results = parser.parse("test/html/level1/level2/virtual-relative.shtml", buildIncludeVirtual("level1/level1.html"));
+		var filename = "test/html/level1/level2/virtual-relative.shtml";
+		var contents = fs.readFileSync(filename, {encoding: "utf8"});
+		var results = parser.parse(filename, contents);
 
-		assert.equal("LEVEL1\n", results.contents);
+		assert.equal("LEVEL1\n\n", results.contents);
 	});
-
 });
 
