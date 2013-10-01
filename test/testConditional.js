@@ -1,9 +1,9 @@
 
 var assert = require("assert");
-var ssi = require("../index.js");
+var SSI = require("../lib/SSI");
 
 describe("testing conditional directives", function() {
-	var parser = new ssi("", "", "");
+	var parser = new SSI("", "", "");
 
 	it("#if should evaluate to true", function() {
 		var conditional = "<!--#if expr=\"true\" --><!--#set var=\"if\" value=\"if\" --><!--#endif -->";
@@ -20,6 +20,7 @@ describe("testing conditional directives", function() {
 		conditional += "<!--#endif -->";
 
 		var results = parser.parse("", conditional);
+
 		assert.equal("elif", results.variables["elif"]);
 	});
 
