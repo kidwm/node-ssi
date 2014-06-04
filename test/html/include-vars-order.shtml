@@ -1,0 +1,4 @@
+<!--#include file="define-vars-first.shtml" -->
+<!--#echo var="FIRST" --><!--#echo var="SECOND" --><!--#echo var="OVERRIDE" --><!--#echo var="EXISTS" -->
+<!--#include file="define-vars-second.shtml" -->
+<!--#echo var="FIRST" --><!--#echo var="SECOND" --><!--#echo var="OVERRIDE" --><!--#echo var="EXISTS" -->

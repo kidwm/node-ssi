@@ -1,0 +1,1 @@
+<!--#include file="define-vars.shtml" --><!--#echo var="FIRST_VAR" --><!--#echo var="SECOND_VAR" -->

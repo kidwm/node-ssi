@@ -1,0 +1,1 @@
+<!--#echo var="NESTED" --><!--#include file="first-var-nested.shtml" --><!--#echo var="NESTED" -->
