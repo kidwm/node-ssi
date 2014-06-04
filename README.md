@@ -13,6 +13,7 @@ __Note:__ The current version of ssi does all IO synchronously. Further developm
 <!--#include virtual="" -->
 <!--#include file="" -->
 <!--#set var="" value="" -->
+<!--#echo var="" -->
 
 <!--#if expr="" -->
 <!--#elif expr="" -->
