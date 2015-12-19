@@ -1,12 +1,9 @@
 node-ssi
 ========
 
-[![Build Status](https://travis-ci.org/67726e/node-ssi.png)](https://travis-ci.org/67726e/node-ssi)
+[![Build Status](https://travis-ci.org/kidwm/node-ssi.png)](https://travis-ci.org/kidwm/node-ssi)
 
 Server Side Includes for NodeJS
-
-
-__Warning:__ I am no longer supporting this project. If you are interested in taking over, please get in touch.
 
 __Note:__ The current version of ssi does all IO synchronously. Further development plans include writing methods asynchronously and migrating current methods to conform to Node conventions for synchronous methods.
 
