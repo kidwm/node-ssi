@@ -1,8 +1,8 @@
 {
   "name": "ssi",
-  "version": "0.1.5",
+  "version": "0.2.0",
   "description": "Server Side Includes for NodeJS",
-  "author": "Glenn Nelson <glenn@hexcoder.us> (glenn@hexcoder.us)",
+  "author": "Chen-Heng Chang <wandererm@gmail.com> (http://kidwm.net/)",
   "main": "index.js",
   "keywords": [
     "ssi",
@@ -10,19 +10,17 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/67726e/node-ssi.git"
+    "url": "https://github.com/kidwm/node-ssi.git"
   },
   "license": "MIT",
-  "readmeFilename": "README.md",
-  "gitHead": "d99f35decc10fbcd2406b2bb7ee23e80b6f23661",
   "dependencies": {
-    "mkdirp": "~0.3.5",
-    "glob": "~3.2.1"
+    "glob": "^6.0.1",
+    "mkdirp": "^0.5.1"
   },
   "devDependencies": {
-    "mocha": "~1.10.0"
+    "mocha": "^2.3.4"
   },
   "scripts": {
-  	"test": "mocha"
+    "test": "mocha"
   }
 }

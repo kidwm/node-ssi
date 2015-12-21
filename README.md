@@ -24,7 +24,7 @@ __Note:__ The current version of ssi does all IO synchronously. Further developm
 ### Installation
 
 ```bash
-npm install ssi 
+npm install ssi
 ```
 
 ### Usage
@@ -39,6 +39,8 @@ var matcher = "/**/*.shtml";
 var includes = new ssi(inputDirectory, outputDirectory, matcher);
 includes.compile();
 ```
+
+If you want to support loosened spaces in directive like `<!-- #include file="" -->` or `<!--  #include file=""  -->`, just enable the fourth argument: `new ssi(inputDirectory, outputDirectory, matcher, true)`.
 
 ### Methods
 
@@ -56,4 +58,3 @@ Method parses all of the files found by the matcher in the input directory, and 
 ### License
 
 MIT
-

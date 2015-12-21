@@ -4,8 +4,8 @@ var SSI = require("./lib/SSI");
 (function() {
 	"use strict";
 
-	var ssi = function(inputDirectory, outputDirectory, matcher) {
-		this.parser = new SSI(inputDirectory, outputDirectory, matcher);
+	var ssi = function(inputDirectory, outputDirectory, matcher, loosenedSpace) {
+		this.parser = new SSI(inputDirectory, outputDirectory, matcher, loosenedSpace);
 	};
 
 	ssi.prototype = {
