@@ -1,6 +1,6 @@
 {
   "name": "ssi",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Server Side Includes for NodeJS",
   "author": "Chen-Heng Chang <wandererm@gmail.com> (http://kidwm.net/)",
   "main": "index.js",

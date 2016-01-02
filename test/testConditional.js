@@ -58,4 +58,15 @@ describe("testing conditional directives", function() {
 		var results = parser.parse("", conditional);
 		assert.deepEqual({}, results.variables);
 	});
+
+	it("regular expression variable capture", function() {
+		var conditional = "<!--#set var=\"date\" value=\"2016-01-01\" -->";
+		conditional += "<!--#if expr=\"$date = /(\\d+)-0?(\\d+)-0?(\\d+)/\" -->";
+		conditional += "<!--#endif -->";
+
+		var results = parser.parse("", conditional);
+		assert.deepEqual('2016', results.variables['1']);
+		assert.deepEqual('1', results.variables['2']);
+		assert.deepEqual('1', results.variables['3']);
+	});
 });
