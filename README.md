@@ -42,6 +42,27 @@ includes.compile();
 
 If you want to support loosened spaces in directive like `<!-- #include file="" -->` or `<!--  #include file=""  -->`, just enable the fourth argument: `new ssi(inputDirectory, outputDirectory, matcher, true)`.
 
+#### BrowserSync Middleware
+
+```js
+middleware: [require('connect-modrewrite')([
+    '^(.*)\.html$ $1.shtml'
+  ]), function(req, res, next) {
+    var fs = require('fs');
+    var ssi = require('ssi');
+    var baseDir = './';
+    var pathname = require('url').parse(req.url).pathname;
+    var filename = require('path').join(baseDir, pathname.substr(-1) === '/' ? pathname + 'index.shtml' : pathname);
+    var parser = new ssi(baseDir, baseDir, '/**/*.shtml');
+    if (filename.indexOf('.shtml') > -1 && fs.existsSync(filename))
+      res.end(parser.parse(filename, fs.readFileSync(filename, {
+        encoding: 'utf8'
+      })).contents);
+    else
+      next();
+  }]
+```
+
 ### Methods
 
 #### parse(filename, contents)
