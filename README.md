@@ -63,6 +63,12 @@ middleware: [require('connect-modrewrite')([
   }]
 ```
 
+#### CLI
+
+```shell
+npx ssi /tmp/test/index.shtml /tmp/output/index.html
+```
+
 ### Methods
 
 #### parse(filename, contents)
