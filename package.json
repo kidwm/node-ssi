@@ -4,6 +4,9 @@
   "description": "Server Side Includes for NodeJS",
   "author": "Chen-Heng Chang <wandererm@gmail.com> (http://kidwm.net/)",
   "main": "index.js",
+  "bin": {
+    "ssi": "./bin/ssi.js"
+  },
   "keywords": [
     "ssi",
     "server side includes"
